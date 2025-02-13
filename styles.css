@@ -34,6 +34,22 @@ body {
   color: white !important;
 }
 
+#catalog {
+  background-color: #feedff;
+  border: 2px solid #4a2777;
+  border-radius: 10px;
+}
+
+#reviews {
+  background-color: #feedff;
+  border: 2px solid #4a2777;
+  border-radius: 10px;
+}
+
+#contact {
+  background: linear-gradient(45deg, #4a2777, #812b86);
+}
+
 
 
 /* section hero */
@@ -68,7 +84,7 @@ body {
 }
 
 .logo-hero {
-  width: 10vw;
+  width: 15vw;
   height: auto;
 }
 
@@ -137,12 +153,9 @@ body {
 
 
 #idInputContainer {
-  display: none; /* Ocultar por defecto */
+  display: none; 
   margin-top: 20px;
 }
-#contact {
-  background: linear-gradient(45deg, #4a2777, #812b86);
-}
 
 
 
@@ -150,17 +163,8 @@ body {
 
 
 
-#catalog {
-  background-color: #feedff;
-  border: 2px solid #4a2777;
-  border-radius: 10px;
-}
 
-#reviews {
-  background-color: #feedff;
-  border: 2px solid #4a2777;
-  border-radius: 10px;
-}
+
 
 
 
