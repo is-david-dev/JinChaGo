@@ -1,0 +1,166 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+
+/* body */
+body {
+  background: url("/src/background.jpg");
+  background-color: #f8f9fa;
+  font-family: "Merriweather", "Roboto", "Gill Sans MT";
+}
+
+
+
+/* nav */
+.logo {
+  width: 10vh;
+  height: auto;
+  margin-right: 10px;
+}
+
+.navbar {
+  color: black !important;
+  background: linear-gradient(45deg, #812b86, #4a2777);
+  /* height: 11vw; */
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link {
+  color: white !important;
+}
+
+
+
+/* section hero */
+.hero {
+  /* background: url("/src/background.jpg") */
+  /* no-repeat center center/cover; */
+
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente */
+
+  /* gap: 200px; */
+  height: 85vh;
+  text-shadow: 3px 2px 5px black;
+
+  /* text-align: center; */
+  color: #edfffb;
+}
+
+.container-hero {
+  display: flex; /* Asegura que los elementos dentro de este contenedor sean flexibles */
+  flex-direction: column; /* Si quieres que los elementos estén apilados verticalmente */
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* Espacio entre los elementos dentro de container-hero */
+}
+
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+.logo-hero {
+  width: 10vw;
+  height: auto;
+}
+
+.btn-primary {
+  background-color: #6d36ba;
+  border: none;
+}
+
+    /* CSS to transition */
+.hidden-container {
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.5s ease-in-out;
+  margin-top: 10px;
+}
+
+.hidden-container.visible {
+  opacity: 1;
+  max-height: 100px;
+}
+
+.hidden-element {
+  display: block;
+  margin: 5px 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease-in-out 0.2s; /* Retardo de 0.2s */
+}
+
+.visible .hidden-element {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.submit-btn {
+  background-color: #4caf50;
+  color: white;
+  padding: 5px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#mainButton {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+
+
+/* section catalog */
+
+
+
+/* section reviews */
+
+
+
+/* section id */
+
+
+
+
+
+#idInputContainer {
+  display: none; /* Ocultar por defecto */
+  margin-top: 20px;
+}
+#contact {
+  background: linear-gradient(45deg, #4a2777, #812b86);
+}
+
+
+
+
+
+
+
+#catalog {
+  background-color: #feedff;
+  border: 2px solid #4a2777;
+  border-radius: 10px;
+}
+
+#reviews {
+  background-color: #feedff;
+  border: 2px solid #4a2777;
+  border-radius: 10px;
+}
+
+
+
