@@ -9,7 +9,7 @@
 
 /* body */
 body {
-  background: url("/src/background.jpg");
+  background: url("src/background.jpg");
   background-color: #f8f9fa;
   font-family: "Merriweather", "Roboto", "Gill Sans MT";
 }
