@@ -18,7 +18,7 @@ body {
 
 /* nav */
 .logo {
-  width: 10vh;
+  width: 5rem;
   height: auto;
   margin-right: 10px;
 }
@@ -60,6 +60,7 @@ body {
   display: flex;
   justify-content: center; /* Centra horizontalmente */
   align-items: center; /* Centra verticalmente */
+  text-align: center;
 
   /* gap: 200px; */
   height: 85vh;
@@ -84,8 +85,8 @@ body {
 }
 
 .logo-hero {
-  width: 15vw;
-  height: auto;
+  width: auto;
+  height: 10rem;
 }
 
 .btn-primary {
@@ -139,6 +140,93 @@ body {
 
 
 /* section catalog */
+
+/* Estilos para las cards (como antes) */
+#productos-wrapper {
+  max-height: 600px;
+  overflow-y: auto;
+  padding: 20px;
+  /* border: 2px solid #eee; */
+  border-radius: 10px;
+  background: transparent;
+  /* background: #f9f9f9; */
+  margin: 20px auto;
+  width: 90%;
+}
+
+.titulo-catalogo {
+  position: sticky;
+  top: 0;
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+#productos-section {
+  display: flex;
+  flex-wrap: nowrap; /* importante */
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 10px;
+}
+
+.producto-card {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  width: 250px;
+  background: #ffffff;
+  /* border-radius: 12px; */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.producto-card:hover {
+  transform: translateY(-5px);
+}
+
+.producto-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  padding: 10px;
+}
+
+.producto-card .info {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.producto-card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.producto-card p {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.producto-card .precio {
+  font-weight: bold;
+  color: #1e88e5;
+  font-size: 1.1rem;
+}
+
+#productos-section::-webkit-scrollbar {
+  height: 12px;
+}
+
+#productos-section::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
 
 
 
