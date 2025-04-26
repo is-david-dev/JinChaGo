@@ -236,7 +236,76 @@ body {
 
 /* section id */
 
+/* Contenedor principal */
+.excel-container {
+  max-width: 100%;
+  max-height: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
 
+.excel-container h2 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+#tablaSelector {
+  padding: 0.5rem;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 300px;
+}
+
+/* Contenedor que limita el alto y agrega scroll */
+#tablaContenido {
+  max-height: 400px;          /* Altura máxima */
+  overflow-y: auto;           /* Scroll vertical si se excede */
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* Tabla */
+#tablaContenido table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0;
+}
+
+#tablaContenido th,
+#tablaContenido td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+#tablaContenido th {
+  background-color: #007bff;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+#tablaContenido tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#tablaContenido tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+#tablaContenido tr:hover {
+  background-color: #eef7ff;
+}
 
 
 
