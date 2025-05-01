@@ -9,9 +9,10 @@
 
 /* body */
 body {
-  background: url("src/background.jpg");
-  background-color: #f8f9fa;
-  font-family: "Merriweather", "Roboto", "Gill Sans MT";
+  /* background: url("src/background.jpg"); */
+  background-color: #feedff;
+  font-family: "Montserrat", "Fredoka";
+  padding-top: 90px;
 }
 
 
@@ -78,6 +79,9 @@ body {
   gap: 20px; /* Espacio entre los elementos dentro de container-hero */
 }
 
+.bienvenida {
+  font-family: "Fredoka", "Montserrat";
+}
 
 .hero h1 {
   font-size: 3rem;
