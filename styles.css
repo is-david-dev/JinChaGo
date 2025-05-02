@@ -27,7 +27,7 @@ body {
 .navbar {
   color: black !important;
   background: linear-gradient(45deg, #812b86, #4a2777);
-  /* height: 11vw; */
+  height: 80px;
 }
 
 .navbar .navbar-brand,
@@ -242,7 +242,7 @@ body {
 
 /* Contenedor principal */
 .excel-container {
-  max-width: 100%;
+  max-width: 90%;
   max-height: 900px;
   margin: 2rem auto;
   padding: 2rem;
