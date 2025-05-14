@@ -118,5 +118,60 @@ function mostrarTabla(data) {
   contenedor.appendChild(table);
 }
 
+// Funcion que realiza la busqueda en sheets para obtener la cantidad de puntos durante los ultimos n meses
+const mainButton = document.getElementById("mainButton");
+const inputId = document.getElementById("userId");
+const submitBtn = document.getElementById("submitBtn");
+const resultadoDiv = document.getElementById("resultado");
+
+// Mostrar los campos al hacer clic
+mainButton.addEventListener("click", () => {
+  inputId.classList.add("show");
+  submitBtn.classList.add("show");
+});
+
+// Buscar el ID al enviar
+submitBtn.addEventListener("click", async () => {
+  const valorBuscado = inputId.value.trim();
+  const nombreColumna = "Nombre"; // <-- Cambia esto si tu columna tiene otro nombre
+  const url =
+    "https://docs.google.com/spreadsheets/d/1agJO_QRV-TpSq_x-CRybpidkIEK0YE_FbJ0a_5DhmkA/export?format=csv&gid=1276338020";
+
+  try {
+    const response = await fetch(url);
+    const csvText = await response.text();
+    const filas = csvText.split("\n").map(f =>
+      f.split(",").map(c => c.trim())
+    );
+    const encabezados = filas[0];
+    const indexColumna = encabezados.indexOf(nombreColumna);
+
+    if (indexColumna === -1) {
+      resultadoDiv.innerHTML = `<p style="color:red;">La columna "${nombreColumna}" no fue encontrada.</p>`;
+      return;
+    }
+
+    const filaEncontrada = filas.find(
+      (fila, i) => i > 0 && fila[indexColumna] === valorBuscado
+    );
+
+    if (filaEncontrada) {
+      let html = `<h3>Resultado:</h3><ul>`;
+      filaEncontrada.forEach((valor, i) => {
+        html += `<li><strong>${encabezados[i] || "Columna " + (i + 1)}:</strong> ${valor}</li>`;
+      });
+      html += `</ul>`;
+      resultadoDiv.innerHTML = html;
+    } else {
+      resultadoDiv.innerHTML =
+        '<p style="color:red;">No se encontró ningún resultado con ese ID.</p>';
+    }
+  } catch (error) {
+    resultadoDiv.innerHTML =
+      "<p style='color:red;'>Error al obtener los datos.</p>";
+    console.error(error);
+  }
+});
+
 // Llamada para mostrar los productos y cargar las tablas
 Promise.all([mostrarProductos(), cargarSelectorTablas()]); // Ejecutar ambas funciones en paralelo
