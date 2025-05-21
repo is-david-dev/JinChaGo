@@ -132,46 +132,126 @@ mainButton.addEventListener("click", () => {
 
 // Buscar el ID al enviar
 submitBtn.addEventListener("click", async () => {
-  const valorBuscado = inputId.value.trim();
-  const nombreColumna = "Nombre"; // <-- Cambia esto si tu columna tiene otro nombre
-  const url =
-    "https://docs.google.com/spreadsheets/d/1agJO_QRV-TpSq_x-CRybpidkIEK0YE_FbJ0a_5DhmkA/export?format=csv&gid=1276338020";
+  const url = "https://docs.google.com/spreadsheets/d/1agJO_QRV-TpSq_x-CRybpidkIEK0YE_FbJ0a_5DhmkA/export?format=csv&gid=1276338020";
+
+  // Obtenemos la hora de red o local, esperando a que termine
+  let fecha = await obtenerHoraDeRedFormateada();
+  console.log("hora obtenida:", fecha);
+
+  // Obtenemos el contenido del input
+  const ID = document.getElementById("userId").value;
+  
+  // Obtenemos el divResultado
+  const resultadoDiv = document.getElementById("resultado");
+  resultadoDiv.innerHTML = ""; // Limpia antes
 
   try {
     const response = await fetch(url);
+    if (!response.ok) throw new Error("Error al obtener el CSV");
+
     const csvText = await response.text();
-    const filas = csvText.split("\n").map(f =>
-      f.split(",").map(c => c.trim())
-    );
-    const encabezados = filas[0];
-    const indexColumna = encabezados.indexOf(nombreColumna);
 
-    if (indexColumna === -1) {
-      resultadoDiv.innerHTML = `<p style="color:red;">La columna "${nombreColumna}" no fue encontrada.</p>`;
-      return;
-    }
+    // Dividimos filas usando expresión regular para varios tipos de saltos de línea
+    const rows = csvText.split('\r\n').map(row => row.split(','));
 
-    const filaEncontrada = filas.find(
-      (fila, i) => i > 0 && fila[indexColumna] === valorBuscado
-    );
+    // Headers
+    const headers = rows[0];
 
-    if (filaEncontrada) {
-      let html = `<h3>Resultado:</h3><ul>`;
-      filaEncontrada.forEach((valor, i) => {
-        html += `<li><strong>${encabezados[i] || "Columna " + (i + 1)}:</strong> ${valor}</li>`;
+    // Creamos el arreglo de objetos
+    const data = rows.slice(1).map(row => {
+      let obj = {};
+      headers.forEach((header, index) => {
+        obj[header.trim()] = row[index]?.trim();
       });
-      html += `</ul>`;
-      resultadoDiv.innerHTML = html;
-    } else {
-      resultadoDiv.innerHTML =
-        '<p style="color:red;">No se encontró ningún resultado con ese ID.</p>';
+      return obj;
+    });
+
+    console.log(headers)
+
+    // Recorrer de último a primero
+    for (let i = data.length - 1; i >= 0; i--) {
+      //obtenemos la fecha del csv y la convertimos en objeto Date
+      let fechaCSV = stringADate(data[i]["Marca temporal"]);
+      // console.log("1. Fecha csv: " + data[i]["Marca temporal"]);
+      // console.log("2. Fecha csv formato: " + fechaCSV);
+      // console.log("3. Fecha actual: " + fecha);
+      // console.log(validarFechaCompra(fechaCSV, fecha));
+
+      let resultado = validarFechaCompra(fechaCSV, fecha);
+      if (resultado.valido) {
+        // console.log(resultado.motivo)
+        // Si la fecha esta dentro de los rangos validos verificamos si el ID es el mismo
+        if (compararStringsCodigo(ID, data[i]["Codigo"])) {
+          console.log("Codigo: " + ID + " Monto: " + data[i]["Monto depositado"])
+          resultadoDiv.innerHTML += `<p>Código: ${ID} Monto: ${data[i]["Monto depositado"]}</p>`;
+        }
+        // console.log(data[i]["Codigo"])
+        // console.log(ID)
+      } else {
+        // console.log(resultado.motivo)
+        break
+      }
     }
   } catch (error) {
-    resultadoDiv.innerHTML =
-      "<p style='color:red;'>Error al obtener los datos.</p>";
-    console.error(error);
+    console.error("Error procesando el CSV:", error);
   }
 });
+
+// Obtener hora de red o local
+async function obtenerHoraDeRedFormateada() {
+  try {
+    const respuesta = await fetch("https://worldtimeapi.org/api/timezone/America/Mexico_City");
+    const datos = await respuesta.json();
+    const fecha = new Date(datos.datetime);
+    return fecha;
+  } catch (error) {
+    console.error("Error al obtener la hora de red:", error);
+    return new Date();
+  }
+}
+
+// Convierte string a Date
+function stringADate(fechaStr) {
+  try {
+    // fechaStr ejemplo: "10/12/2022 13:23:12"
+    const [fecha, hora] = fechaStr.split(' ');
+    const [dia, mes, año] = fecha.split('/').map(Number);
+    const [horas, minutos, segundos] = hora.split(':').map(Number);
+    return new Date(año, mes - 1, dia, horas, minutos, segundos);
+  } catch (error) {
+    console.error("Error al convertir la fecha:", error);
+    return new Date(2025, 3, 28);
+    // return new Date(2022, 0, 1);
+  }
+}
+
+// Valida la fecha de compra con respecto a la fecha actual
+function validarFechaCompra(fechaCompra, fechaActual) {
+  try {
+    const hace2Meses = new Date(fechaActual);
+    hace2Meses.setMonth(fechaActual.getMonth() - 2);
+
+    const fechaMinima = new Date(2025, 3, 28);
+
+    if (fechaCompra < hace2Meses) {
+      return { valido: false, motivo: "La fecha de compra tiene más de 2 meses." };
+    }
+
+    if (fechaCompra < fechaMinima) {
+      return { valido: false, motivo: "La fecha de compra es anterior al 28 de abril de 2025." };
+    }
+
+    return { valido: true, motivo: "Fecha dentro de los rangos establecidos" };
+  } catch (error) {
+    return { valido: false, motivo: "Error en validación de fechas." };
+  }
+}
+
+// Recibe 2 strings y compara eliminando espacios y haciendolas mayusculas
+function compararStringsCodigo(str1, str2) {
+  const normalizar = str => str.replace(/\s+/g, '').toUpperCase();
+  return normalizar(str1) === normalizar(str2);
+}
 
 // Llamada para mostrar los productos y cargar las tablas
 Promise.all([mostrarProductos(), cargarSelectorTablas()]); // Ejecutar ambas funciones en paralelo
