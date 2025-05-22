@@ -79,10 +79,13 @@ body {
   justify-content: center;
   align-items: center;
   gap: 20px; /* Espacio entre los elementos dentro de container-hero */
+  color: black;
 }
 
 .bienvenida {
   font-family: "Fredoka", "Montserrat";
+  color: white;
+
 }
 
 .hero h1 {
@@ -141,6 +144,11 @@ body {
 #mainButton {
   padding: 10px 20px;
   cursor: pointer;
+}
+
+#resultado {
+  text-shadow: none;
+  color: #333;
 }
 
 

@@ -132,7 +132,15 @@ mainButton.addEventListener("click", () => {
 
 // Buscar el ID al enviar
 submitBtn.addEventListener("click", async () => {
+  // Formulario de pagos (respuestas)
   const url = "https://docs.google.com/spreadsheets/d/1agJO_QRV-TpSq_x-CRybpidkIEK0YE_FbJ0a_5DhmkA/export?format=csv&gid=1276338020";
+  // Formulario de pagos mercari (respuestas)
+  const urlMercari = "https://docs.google.com/spreadsheets/d/1mZAT63WxkNWEYbW9uftj_n7Tph1Yt4kYw2bRXpSxmBs/export?format=csv&gid=425040839"
+  // Formulario de puntos usados:
+  const urlAduana = "https://docs.google.com/spreadsheets/d/1YvIs9cORLcXVC_Lx5Aw7ZrcF1mr96pJS1Ddhxpv87q0/export?format=csv&gid=453768687"
+
+  //variable para almacenar los puntos
+  let puntos = 0;
 
   // Obtenemos la hora de red o local, esperando a que termine
   let fecha = await obtenerHoraDeRedFormateada();
@@ -147,15 +155,29 @@ submitBtn.addEventListener("click", async () => {
 
   try {
     const response = await fetch(url);
+    const responseMercari = await fetch(urlMercari)
+    const responseAduana = await fetch(urlAduana)
+
     if (!response.ok) throw new Error("Error al obtener el CSV");
+    if (!responseMercari.ok) throw new Error("Error al obtener el CSV Mercari");
+    if (!responseAduana.ok) throw new Error("Error al obtener el CSV aduana");
+
 
     const csvText = await response.text();
+    const csvMercari = await responseMercari.text();
+    const csvAduana = await responseAduana.text();
 
     // Dividimos filas usando expresión regular para varios tipos de saltos de línea
     const rows = csvText.split('\r\n').map(row => row.split(','));
+    const rowsMercari = csvMercari.split('\r\n').map(row => row.split(','));
+    const rowsAduana = csvAduana.split('\r\n').map(row => row.split(','));
+
 
     // Headers
     const headers = rows[0];
+    const headersMercari = rowsMercari[0];
+    const headersAduana = rowsAduana[0];
+
 
     // Creamos el arreglo de objetos
     const data = rows.slice(1).map(row => {
@@ -166,7 +188,26 @@ submitBtn.addEventListener("click", async () => {
       return obj;
     });
 
+    const dataMercari = rowsMercari.slice(1).map(row => {
+      let obj = {};
+      headersMercari.forEach((header, index) => {
+        obj[header.trim()] = row[index]?.trim();
+      });
+      return obj;
+    });
+
+    const dataAduana = rowsAduana.slice(1).map(row => {
+      let obj = {};
+      headersAduana.forEach((header, index) => {
+        obj[header.trim()] = row[index]?.trim();
+      });
+      return obj;
+    });
+
     console.log(headers)
+    console.log(headersMercari)
+    console.log(headersAduana)
+    // console.log(data)
 
     // Recorrer de último a primero
     for (let i = data.length - 1; i >= 0; i--) {
@@ -178,19 +219,74 @@ submitBtn.addEventListener("click", async () => {
       // console.log(validarFechaCompra(fechaCSV, fecha));
 
       let resultado = validarFechaCompra(fechaCSV, fecha);
-      if (resultado.valido) {
-        // console.log(resultado.motivo)
-        // Si la fecha esta dentro de los rangos validos verificamos si el ID es el mismo
-        if (compararStringsCodigo(ID, data[i]["Codigo"])) {
-          console.log("Codigo: " + ID + " Monto: " + data[i]["Monto depositado"])
-          resultadoDiv.innerHTML += `<p>Código: ${ID} Monto: ${data[i]["Monto depositado"]}</p>`;
-        }
-        // console.log(data[i]["Codigo"])
-        // console.log(ID)
-      } else {
-        // console.log(resultado.motivo)
-        break
+
+      if (!resultado.valido) continue;
+
+      if (compararStringsCodigo(ID, data[i]["Codigo"])) {
+        console.log("Codigo: " + ID + " Monto: " + data[i]["Monto depositado"] + " Fecha: " + fechaCSV)
+        // resultadoDiv.innerHTML += `<p>Código: ${ID} Monto: ${data[i]["Monto depositado"]}</p>`;
+        let monto = parseFloat(data[i]["Monto depositado"].replace(/[^0-9.-]+/g, '')) || 0;
+        puntos += monto;
+        console.log("Puntos: " + puntos)
       }
+
+      // if (resultado.valido) {
+      //   // console.log(resultado.motivo)
+      //   // Si la fecha esta dentro de los rangos validos verificamos si el ID es el mismo
+      //   if (compararStringsCodigo(ID, data[i]["Codigo"])) {
+      //     console.log("Codigo: " + ID + " Monto: " + data[i]["Monto depositado"])
+      //     resultadoDiv.innerHTML += `<p>Código: ${ID} Monto: ${data[i]["Monto depositado"]}</p>`;
+      //   }
+      //   // console.log(data[i]["Codigo"])
+      //   // console.log(ID)
+      // } else {
+      //   // console.log(resultado.motivo)
+      //   break
+      // }
+    }
+
+    // Mercari
+    for (let i = dataMercari.length - 1; i >= 0; i--) {
+      //obtenemos la fecha del csv y la convertimos en objeto Date
+      let fechaCSV = stringADate(dataMercari[i]["Marca temporal"]);
+      let resultadoMercari = validarFechaCompra(fechaCSV, fecha);
+    
+      if (!resultadoMercari.valido) continue;
+    
+      if (compararStringsCodigo(ID, dataMercari[i]["Codigo"])) {
+        console.log("Codigo Mercari: " + ID + " Monto: " + dataMercari[i]["Monto depositado"] + " Fecha: " + fechaCSV)
+        // resultadoDiv.innerHTML += `<p>Código: ${ID} Monto: ${dataMercari[i]["Monto depositado"]}</p>`;
+        let monto = parseFloat(dataMercari[i]["Monto depositado"].replace(/[^0-9.-]+/g, '')) || 0;
+        puntos += monto;
+        console.log("Puntos: " + puntos)
+      }
+    }
+
+    puntos = Math.floor(puntos / 100)
+    console.log("TOTAL DE PUNTOS: " + puntos)
+
+    // Restamos puntos de aduada
+    for (let i = dataAduana.length - 1; i >= 0; i--) {
+      //obtenemos la fecha del csv y la convertimos en objeto Date
+      let fechaCSV = stringADate(dataAduana[i]["Marca temporal"]);
+      let resultadoAduana = validarFechaCompra(fechaCSV, fecha);
+    
+      if (!resultadoAduana.valido) continue;
+  
+      // console.log("Puntos descontados: ")
+      if (compararStringsCodigo(ID, dataAduana[i]["Puntos"])) {
+        console.log("Codigo Mercari: " + ID + " Puntos usados: " + dataAduana[i]["Puntos"] + " Fecha: " + fechaCSV)
+        // resultadoDiv.innerHTML += `<p>Código: ${ID} Monto: ${dataMercari[i]["Monto depositado"]}</p>`;
+        let puntosUsados = parseFloat(dataAduana[i]["Puntos"].replace(/[^0-9.-]+/g, '')) || 0;
+        puntos -= puntosUsados;
+        console.log("Puntos: " + puntos)
+      }
+    }
+
+    if (puntos > 0) {
+      resultadoDiv.innerHTML += `<p><strong>Genial! Tienes un total de: ${puntos} puntos disponibles. c:</strong></p>`;
+    } else {
+      resultadoDiv.innerHTML += `<p><strong>No tienes puntos disponibles. :c</strong></p>`;
     }
   } catch (error) {
     console.error("Error procesando el CSV:", error);
@@ -213,17 +309,24 @@ async function obtenerHoraDeRedFormateada() {
 // Convierte string a Date
 function stringADate(fechaStr) {
   try {
-    // fechaStr ejemplo: "10/12/2022 13:23:12"
+    // Validar que la fecha tenga un espacio separando fecha y hora
+    if (!fechaStr.includes(" ")) {
+      console.warn("Formato de fecha inesperado:", fechaStr);
+      return new Date(2025, 3, 28); // Fallback: 28 de abril de 2025
+    }
+
+    // Ejemplo de fecha esperada: "10/12/2022 13:23:12"
     const [fecha, hora] = fechaStr.split(' ');
     const [dia, mes, año] = fecha.split('/').map(Number);
     const [horas, minutos, segundos] = hora.split(':').map(Number);
+
     return new Date(año, mes - 1, dia, horas, minutos, segundos);
   } catch (error) {
     console.error("Error al convertir la fecha:", error);
-    return new Date(2025, 3, 28);
-    // return new Date(2022, 0, 1);
+    return new Date(2025, 3, 28); // Fallback por error
   }
 }
+
 
 // Valida la fecha de compra con respecto a la fecha actual
 function validarFechaCompra(fechaCompra, fechaActual) {
