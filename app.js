@@ -274,7 +274,7 @@ submitBtn.addEventListener("click", async () => {
       if (!resultadoAduana.valido) continue;
   
       // console.log("Puntos descontados: ")
-      if (compararStringsCodigo(ID, dataAduana[i]["Puntos"])) {
+      if (compararStringsCodigo(ID, dataAduana[i]["Codigo"])) {
         console.log("Codigo Mercari: " + ID + " Puntos usados: " + dataAduana[i]["Puntos"] + " Fecha: " + fechaCSV)
         // resultadoDiv.innerHTML += `<p>Código: ${ID} Monto: ${dataMercari[i]["Monto depositado"]}</p>`;
         let puntosUsados = parseFloat(dataAduana[i]["Puntos"].replace(/[^0-9.-]+/g, '')) || 0;
