@@ -8,6 +8,7 @@ document.getElementById('mainButton').addEventListener('click', function() {
 // URLs de los CSV
 const productosCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQy2oNq6cXOmJucaSQxPcdGzTZMaebMVvuhNCHo47-em1AJvTR7LByS0XQbiXICFC4WwXUmk_zIx9Fk/pub?gid=0&single=true&output=csv';
 const tablasCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQy2oNq6cXOmJucaSQxPcdGzTZMaebMVvuhNCHo47-em1AJvTR7LByS0XQbiXICFC4WwXUmk_zIx9Fk/pub?gid=1476200703&single=true&output=csv';
+const tablaPuntos = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy2oNq6cXOmJucaSQxPcdGzTZMaebMVvuhNCHo47-em1AJvTR7LByS0XQbiXICFC4WwXUmk_zIx9Fk/pub?gid=1051246969&single=true&output=csv"
 
 // Función para leer el CSV desde una URL
 async function leerCSV(url) {
@@ -78,11 +79,25 @@ async function cargarSelectorTablas() {
 
   // Evento change para cargar la tabla
   selector.addEventListener('change', async (e) => {
+    const contenedor = document.getElementById('tablaContenido');
+    contenedor.innerHTML = ''; // Limpiar el contenido previo
+    
     const url = e.target.value;
     if (!url) return;
-    const data = await leerCSV(url);
-    mostrarTabla(data);
+  
+    const loader = document.getElementById('loader-tabla');
+    loader.classList.remove('d-none');  // Mostrar loader
+  
+    try {
+      const data = await leerCSV(url);
+      mostrarTabla(data);
+    } catch (error) {
+      console.error("Error cargando la tabla:", error);
+    } finally {
+      loader.classList.add('d-none');  // Ocultar loader
+    }
   });
+  
 }
 
 // Función para mostrar las tablas seleccionadas
@@ -130,8 +145,22 @@ mainButton.addEventListener("click", () => {
   submitBtn.classList.add("show");
 });
 
+
+// ---------------------------------- PUNTOS ----------------------------------
 // Buscar el ID al enviar
 submitBtn.addEventListener("click", async () => {
+  // Verificamos primero si el codigo ingresado es correcto
+  const submitBtn = document.getElementById("submitBtn");
+  const input = document.getElementById("userId");
+
+  const regex = /^[Jj][Cc][Gg]\d{4}$/;
+
+    if (!regex.test(input.value)) {
+      alert('Tu código es incorrecto. Debe ser JCG seguido de 4 números.');
+      input.focus();
+      return;
+    }
+
   // Formulario de pagos (respuestas)
   const url = "https://docs.google.com/spreadsheets/d/1agJO_QRV-TpSq_x-CRybpidkIEK0YE_FbJ0a_5DhmkA/export?format=csv&gid=1276338020";
   // Formulario de pagos mercari (respuestas)
@@ -148,7 +177,11 @@ submitBtn.addEventListener("click", async () => {
 
   // Obtenemos el contenido del input
   const ID = document.getElementById("userId").value;
-  
+
+  // Loader
+  const loader = document.getElementById('loader');
+  loader.classList.remove('d-none');
+
   // Obtenemos el divResultado
   const resultadoDiv = document.getElementById("resultado");
   resultadoDiv.innerHTML = ""; // Limpia antes
@@ -157,21 +190,27 @@ submitBtn.addEventListener("click", async () => {
     const response = await fetch(url);
     const responseMercari = await fetch(urlMercari)
     const responseAduana = await fetch(urlAduana)
+    const responseTablaPuntos = await fetch(tablaPuntos)
 
     if (!response.ok) throw new Error("Error al obtener el CSV");
     if (!responseMercari.ok) throw new Error("Error al obtener el CSV Mercari");
     if (!responseAduana.ok) throw new Error("Error al obtener el CSV aduana");
-
+    if (!responseTablaPuntos.ok) throw new Error("Error al obtener los puntos");
 
     const csvText = await response.text();
     const csvMercari = await responseMercari.text();
     const csvAduana = await responseAduana.text();
+    const csvTablaPuntos = await responseTablaPuntos.text();
 
     // Dividimos filas usando expresión regular para varios tipos de saltos de línea
     const rows = csvText.split('\r\n').map(row => row.split(','));
     const rowsMercari = csvMercari.split('\r\n').map(row => row.split(','));
     const rowsAduana = csvAduana.split('\r\n').map(row => row.split(','));
-
+    const rowsTablaPuntos = csvTablaPuntos.split('\r\n').map(row => row.split(','));
+    console.log("TABLA PUNTOS: " + rowsTablaPuntos)
+    console.log("Header: " + rowsTablaPuntos[0])
+    console.log("Valor puntos: " + rowsTablaPuntos[1])
+    let valorPuntos = parseInt(rowsTablaPuntos[1])
 
     // Headers
     const headers = rows[0];
@@ -262,7 +301,7 @@ submitBtn.addEventListener("click", async () => {
       }
     }
 
-    puntos = Math.floor(puntos / 100)
+    puntos = Math.floor(puntos / (100))
     console.log("TOTAL DE PUNTOS: " + puntos)
 
     // Restamos puntos de aduada
@@ -285,11 +324,14 @@ submitBtn.addEventListener("click", async () => {
 
     if (puntos > 0) {
       resultadoDiv.innerHTML += `<p><strong>Genial! Tienes un total de: ${puntos} puntos disponibles. c:</strong></p>`;
+      resultadoDiv.innerHTML += `<p><strong>Recuerda que cada punto vale tiene un valor de: $${valorPuntos}</strong></p>`;
     } else {
       resultadoDiv.innerHTML += `<p><strong>No tienes puntos disponibles. :c</strong></p>`;
     }
   } catch (error) {
     console.error("Error procesando el CSV:", error);
+  } finally {
+    loader.classList.add('d-none')
   }
 });
 

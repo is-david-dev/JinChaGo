@@ -65,7 +65,7 @@
     <!-- Sección Hero -->
     <section class="hero">
       <div class="container-hero">
-        <img class="logo-hero" src="src/logo.png" alt="Logo" />
+        <img class="logo-hero" src="src/logo-hero.png" alt="Logo" />
         <h1 class="bienvenida">Bienvenido JinChaGo</h1>
         <p>Todo sobre el mundo del K-Pop.</p>
     
@@ -83,6 +83,11 @@
           <button class="hidden-element submit-btn" id="submitBtn">Enviar</button>
         </div>
     
+        <div id="loader" class="d-none text-center mt-3">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
         <div id="resultado"></div>
       </div>
     </section>
@@ -99,6 +104,14 @@
       <select id="tablaSelector">
         <option value="">-- Selecciona una tabla --</option>
       </select>
+
+      <!-- Loader: inicialmente oculto -->
+      <div id="loader-tabla" class="d-none mt-3 text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>      
+
       <div id="tablaContenido" class="table-responsive"></div>
     </div>
 
