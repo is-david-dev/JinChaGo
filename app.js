@@ -197,65 +197,46 @@ submitBtn.addEventListener("click", async () => {
     if (!responseAduana.ok) throw new Error("Error al obtener el CSV aduana");
     if (!responseTablaPuntos.ok) throw new Error("Error al obtener los puntos");
 
-    const csvText = await response.text();
-    const csvMercari = await responseMercari.text();
-    const csvAduana = await responseAduana.text();
     const csvTablaPuntos = await responseTablaPuntos.text();
 
-    // Dividimos filas usando expresión regular para varios tipos de saltos de línea
-    const rows = csvText.split('\r\n').map(row => row.split(','));
-    const rowsMercari = csvMercari.split('\r\n').map(row => row.split(','));
-    const rowsAduana = csvAduana.split('\r\n').map(row => row.split(','));
     const rowsTablaPuntos = csvTablaPuntos.split('\r\n').map(row => row.split(','));
     console.log("TABLA PUNTOS: " + rowsTablaPuntos)
     console.log("Header: " + rowsTablaPuntos[0])
     console.log("Valor puntos: " + rowsTablaPuntos[1])
     let valorPuntos = parseInt(rowsTablaPuntos[1])
 
-    // Headers
-    const headers = rows[0];
-    const headersMercari = rowsMercari[0];
-    const headersAduana = rowsAduana[0];
+    const csvText = await response.text();
+    const csvMercari = await responseMercari.text();
+    const csvAduana = await responseAduana.text();
 
-
-    // Creamos el arreglo de objetos
-    const data = rows.slice(1).map(row => {
-      let obj = {};
-      headers.forEach((header, index) => {
-        obj[header.trim()] = row[index]?.trim();
-      });
-      return obj;
+    const parsedData = Papa.parse(csvText, {
+      header: true,
+      skipEmptyLines: true,
     });
 
-    const dataMercari = rowsMercari.slice(1).map(row => {
-      let obj = {};
-      headersMercari.forEach((header, index) => {
-        obj[header.trim()] = row[index]?.trim();
-      });
-      return obj;
+    const parsedMercari = Papa.parse(csvMercari, {
+      header: true,
+      skipEmptyLines: true,
+    });
+    
+    const parsedAduana = Papa.parse(csvAduana, {
+      header: true,
+      skipEmptyLines: true,
     });
 
-    const dataAduana = rowsAduana.slice(1).map(row => {
-      let obj = {};
-      headersAduana.forEach((header, index) => {
-        obj[header.trim()] = row[index]?.trim();
-      });
-      return obj;
-    });
+    const data = parsedData.data;
+    const dataMercari = parsedMercari.data;
+    const dataAduana = parsedAduana.data;
 
-    console.log(headers)
-    console.log(headersMercari)
-    console.log(headersAduana)
-    // console.log(data)
+    console.log(parsedData.meta.fields)
+    console.log(parsedMercari.meta.fields)
+    console.log(parsedAduana.meta.fields)
 
-    // Recorrer de último a primero
+    // Recorrer de último a primero del cvs de Corea
+    console.log("Corea: ")
     for (let i = data.length - 1; i >= 0; i--) {
       //obtenemos la fecha del csv y la convertimos en objeto Date
       let fechaCSV = stringADate(data[i]["Marca temporal"]);
-      // console.log("1. Fecha csv: " + data[i]["Marca temporal"]);
-      // console.log("2. Fecha csv formato: " + fechaCSV);
-      // console.log("3. Fecha actual: " + fecha);
-      // console.log(validarFechaCompra(fechaCSV, fecha));
 
       let resultado = validarFechaCompra(fechaCSV, fecha);
 
@@ -266,25 +247,12 @@ submitBtn.addEventListener("click", async () => {
         // resultadoDiv.innerHTML += `<p>Código: ${ID} Monto: ${data[i]["Monto depositado"]}</p>`;
         let monto = parseFloat(data[i]["Monto depositado"].replace(/[^0-9.-]+/g, '')) || 0;
         puntos += monto;
-        console.log("Puntos: " + puntos)
+        // console.log("Puntos: " + puntos)
       }
-
-      // if (resultado.valido) {
-      //   // console.log(resultado.motivo)
-      //   // Si la fecha esta dentro de los rangos validos verificamos si el ID es el mismo
-      //   if (compararStringsCodigo(ID, data[i]["Codigo"])) {
-      //     console.log("Codigo: " + ID + " Monto: " + data[i]["Monto depositado"])
-      //     resultadoDiv.innerHTML += `<p>Código: ${ID} Monto: ${data[i]["Monto depositado"]}</p>`;
-      //   }
-      //   // console.log(data[i]["Codigo"])
-      //   // console.log(ID)
-      // } else {
-      //   // console.log(resultado.motivo)
-      //   break
-      // }
     }
 
-    // Mercari
+    // Recorrer de último a primero del cvs de Mercari
+    console.log("Mercari: ")
     for (let i = dataMercari.length - 1; i >= 0; i--) {
       //obtenemos la fecha del csv y la convertimos en objeto Date
       let fechaCSV = stringADate(dataMercari[i]["Marca temporal"]);
@@ -297,7 +265,7 @@ submitBtn.addEventListener("click", async () => {
         // resultadoDiv.innerHTML += `<p>Código: ${ID} Monto: ${dataMercari[i]["Monto depositado"]}</p>`;
         let monto = parseFloat(dataMercari[i]["Monto depositado"].replace(/[^0-9.-]+/g, '')) || 0;
         puntos += monto;
-        console.log("Puntos: " + puntos)
+        // console.log("Puntos: " + puntos)
       }
     }
 
@@ -305,6 +273,7 @@ submitBtn.addEventListener("click", async () => {
     console.log("TOTAL DE PUNTOS: " + puntos)
 
     // Restamos puntos de aduada
+    console.log("Puntos a restar: ")
     for (let i = dataAduana.length - 1; i >= 0; i--) {
       //obtenemos la fecha del csv y la convertimos en objeto Date
       let fechaCSV = stringADate(dataAduana[i]["Marca temporal"]);
@@ -318,7 +287,7 @@ submitBtn.addEventListener("click", async () => {
         // resultadoDiv.innerHTML += `<p>Código: ${ID} Monto: ${dataMercari[i]["Monto depositado"]}</p>`;
         let puntosUsados = parseFloat(dataAduana[i]["Puntos"].replace(/[^0-9.-]+/g, '')) || 0;
         puntos -= puntosUsados;
-        console.log("Puntos: " + puntos)
+        // console.log("Puntos: " + puntos)
       }
     }
 
