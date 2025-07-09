@@ -292,10 +292,27 @@ submitBtn.addEventListener("click", async () => {
     }
 
     if (puntos > 0) {
-      resultadoDiv.innerHTML += `<p><strong>Genial! Tienes un total de: ${puntos} puntos disponibles. c:</strong></p>`;
-      resultadoDiv.innerHTML += `<p><strong>Recuerda que cada punto vale tiene un valor de: $${valorPuntos}</strong></p>`;
+      const totalPesos = puntos * valorPuntos;
+
+      resultadoDiv.innerHTML += `
+        <div class="alert alert-success" role="alert">
+          <h4 class="alert-heading">¡Tienes puntos disponibles!</h4>
+          <p><strong>${puntos}</strong> puntos disponibles.</p>
+          <p>Cada punto tiene un valor de <strong>$${valorPuntos}</strong> MXN.</p>
+          <hr>
+          <p class="mb-0">Equivalente total: <strong>$${totalPesos}</strong> MXN.</p>
+        </div>
+        <div class="alert alert-warning mt-3" role="alert">
+          <i class="fas fa-info-circle me-2"></i>
+          Recuerda que tus puntos tienen una vigencia de <strong>2 meses</strong> a partir de su fecha de obtención.
+        </div>
+      `;
     } else {
-      resultadoDiv.innerHTML += `<p><strong>No tienes puntos disponibles. :c</strong></p>`;
+      resultadoDiv.innerHTML += `
+        <div class="alert alert-danger" role="alert">
+          <strong>No tienes puntos disponibles.</strong> ¡Sigue participando para acumular más!
+        </div>
+      `;
     }
   } catch (error) {
     console.error("Error procesando el CSV:", error);
